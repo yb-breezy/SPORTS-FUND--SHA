@@ -1,0 +1,20 @@
+<!doctype html>
+{# base.html — the outer shell every page shares. Other templates "extend" it
+   and fill in the blocks: title, body. Everything loads from /static, so the
+   demo works with no internet connection. #}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %} · Demo</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="demo-banner" role="note">
+    <strong>Demonstration prototype</strong>
+    <span>Not an official Sports Fund or SHA system · All records are fictional · Integration results are simulated</span>
+  </div>
+  {% block body %}{% endblock %}
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

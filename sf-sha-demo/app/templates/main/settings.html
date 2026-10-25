@@ -1,0 +1,61 @@
+{% extends "app_layout.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+  <section class="card">
+    <h2>Current demo user</h2>
+    <dl class="details">
+      <dt>Name</dt><dd>{{ g.user.full_name }}</dd>
+      <dt>Email</dt><dd>{{ g.user.email }}</dd>
+      <dt>Proposed role</dt><dd>{{ g.user.role_name }}</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Demonstration notice</h2>
+    <p>{{ DEMO_NOTICE }}</p>
+    <p class="muted">Every name, reference number, coverage result, referral and financial amount in this demo was generated for the demonstration. Reference numbers start with <code>DEMO-</code> or <code>SIM-</code>. No real personal or health information is stored, and nothing is sent to any external system.</p>
+  </section>
+</div>
+
+<section class="card section">
+  <h2>Proposed roles and permissions</h2>
+  <p class="muted">A proposed design for discussion. Final roles would need agreement from the Sports Fund and SHA.</p>
+  <div class="table-wrap">
+    <table class="table perm-table">
+      <thead>
+        <tr><th>Permission</th>{% for key, role in roles.items() %}<th>{{ role.name }}</th>{% endfor %}</tr>
+      </thead>
+      <tbody>
+        {% for pkey, plabel in permissions.items() %}
+          <tr>
+            <td>{{ plabel }}</td>
+            {% for key, role in roles.items() %}
+              <td class="center">{% if pkey in role.permissions %}<span class="tick" aria-label="Allowed">✓</span>{% else %}<span class="dash" aria-label="Not allowed">–</span>{% endif %}</td>
+            {% endfor %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card section danger-zone">
+  <h2>Reset demo data</h2>
+  <p>Deletes every change made during the demo and restores the original fictional sample dataset. Demo accounts are recreated with the same sign-in details.</p>
+  {% if can("reset_demo") %}
+    <form method="post" action="{{ url_for('main.reset_demo') }}" class="form inline-form"
+          data-confirm="Reset the demo? All changes made during this session will be lost.">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label class="field">
+        <span>Type <code>RESET</code> to confirm</span>
+        <input type="text" name="confirm_text" autocomplete="off" required pattern="RESET" placeholder="RESET">
+      </label>
+      <button class="btn btn-danger" type="submit">Reset demo data</button>
+    </form>
+  {% else %}
+    <p class="muted">Only the Administrator role can reset the demo. Sign in as the demo administrator to use this.</p>
+  {% endif %}
+</section>
+{% endblock %}

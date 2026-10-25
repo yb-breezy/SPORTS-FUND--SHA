@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body_class %}public{% endblock %}
+{% block body %}
+<main class="login-wrap">
+  <section class="login-card card">
+    <a class="back-link" href="{{ url_for('main.index') }}">← About this demo</a>
+    <h1>Sign in to the demo</h1>
+    <p class="muted">Use one of the fictional demo accounts. Each one shows a different proposed role.</p>
+    {% include "partials/_flash.html" %}
+    {% if error %}<div class="flash flash-error" role="alert">{{ error }}</div>{% endif %}
+
+    <form method="post" action="{{ url_for('auth.login') }}" class="form" novalidate data-validate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" id="email" value="{{ email }}" required autocomplete="username">
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input type="password" name="password" id="password" required autocomplete="current-password">
+      </label>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+  </section>
+
+  <section class="card demo-accounts">
+    <h2>Demo accounts</h2>
+    <p class="muted">All use the password <code>{{ demo_password }}</code>. Click “Use” to fill the form.</p>
+    <ul class="account-list">
+      {% for acc in demo_accounts %}
+        <li>
+          <div>
+            <strong>{{ acc.role }}</strong>
+            <span class="muted">{{ acc.name }} · {{ acc.email }}</span>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm"
+                  data-fill-email="{{ acc.email }}" data-fill-password="{{ demo_password }}">Use</button>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+</main>
+{% endblock %}

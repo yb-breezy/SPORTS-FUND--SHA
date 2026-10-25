@@ -1,0 +1,67 @@
+{% extends "app_layout.html" %}
+{% block title %}Home{% endblock %}
+{% block page_title %}Home{% endblock %}
+{% block content %}
+<section class="welcome card">
+  <div>
+    <p class="eyebrow">Signed in as</p>
+    <h2>{{ g.user.full_name }} · {{ g.user.role_name }}</h2>
+    <p class="muted">This is a fictional demo account. The role and its permissions are proposals, not agreed institutional access rules.</p>
+  </div>
+  <span class="badge badge-sim">Demo data</span>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Demo dataset at a glance</h2>
+    <span class="badge badge-muted">Counted live from the database</span>
+  </div>
+  <div class="grid grid-4">
+    <div class="stat card"><span class="stat-label">Beneficiaries</span><span class="stat-value">{{ counts.beneficiaries }}</span><span class="stat-note">{{ counts.registered }} registered</span></div>
+    <div class="stat card"><span class="stat-label">Programmes</span><span class="stat-value">{{ counts.programmes }}</span><span class="stat-note">fictional programmes</span></div>
+    <div class="stat card"><span class="stat-label">Simulated coverage checks</span><span class="stat-value">{{ counts.coverage_checks }}</span><span class="stat-note">none verified by SHA</span></div>
+    <div class="stat card"><span class="stat-label">Follow-up cases</span><span class="stat-value">{{ counts.cases }}</span><span class="stat-note">{{ counts.open_cases }} not yet resolved</span></div>
+    <div class="stat card"><span class="stat-label">Simulated referrals</span><span class="stat-value">{{ counts.referrals }}</span><span class="stat-note">nothing sent externally</span></div>
+    <div class="stat card"><span class="stat-label">Financial entries</span><span class="stat-value">{{ counts.financial_records }}</span><span class="stat-note">fictional amounts</span></div>
+    <div class="stat card"><span class="stat-label">Demo accounts</span><span class="stat-value">{{ counts.users }}</span><span class="stat-note">across 5 proposed roles</span></div>
+    <div class="stat card"><span class="stat-label">Activity log entries</span><span class="stat-value">{{ counts.activity }}</span><span class="stat-note">prototype log</span></div>
+  </div>
+</section>
+
+<div class="grid grid-2 section">
+  <section class="card">
+    <h2>Beneficiaries by group</h2>
+    <p class="muted">Groups from concept note §5.</p>
+    <ul class="bars">
+      {% for name, n in category_breakdown %}
+        <li>
+          <span class="bar-label">{{ name }}</span>
+          <span class="bar-track"><span class="bar-fill" style="width: {{ (n / largest * 100) | round(1) }}%"></span></span>
+          <span class="bar-value">{{ n }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What your role can do</h2>
+    <p class="muted">The server checks these on every request.</p>
+    <ul class="check-list">
+      {% for key, label in my_permissions %}<li>{{ label }}</li>{% endfor %}
+    </ul>
+  </section>
+</div>
+
+<section class="card section">
+  <h2>Build progress</h2>
+  <p class="muted">Modules marked M2–M5 in the menu are planned and will become clickable as each milestone is finished and tested.</p>
+  <ol class="milestones">
+    <li class="done"><strong>M1 Foundation</strong> — sign-in, roles, layout, sample data, reset</li>
+    <li><strong>M2 Beneficiary register</strong> — list, search, register, edit, profiles</li>
+    <li><strong>M3 Coordination</strong> — simulated coverage checks, cases, referrals</li>
+    <li><strong>M4 Monitoring</strong> — dashboard, programmes, financial accountability</li>
+    <li><strong>M5 Oversight</strong> — reports &amp; CSV export, users &amp; roles, activity log</li>
+    <li><strong>M6 Ready to present</strong> — full testing, polish, documentation, walkthrough</li>
+  </ol>
+</section>
+{% endblock %}

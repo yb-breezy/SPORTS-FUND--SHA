@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+{% block body_class %}public{% endblock %}
+{% block body %}
+<header class="public-header">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">SF</span>
+    <div>
+      <div class="brand-title">{{ APP_NAME }}</div>
+      <div class="brand-sub">Independent proposal · Demonstration prototype</div>
+    </div>
+  </div>
+  {% if g.user %}
+    <a class="btn btn-primary" href="{{ url_for('main.home') }}">Continue to demo</a>
+  {% else %}
+    <a class="btn btn-primary" href="{{ url_for('auth.login') }}">Enter the demo</a>
+  {% endif %}
+</header>
+
+<main class="public-main">
+  {% include "partials/_flash.html" %}
+  <section class="hero">
+    <p class="eyebrow">Proposed concept for discussion</p>
+    <h1>Connecting sports development support with health coverage coordination</h1>
+    <p class="lead">
+      A demonstration of how a digital platform could help the Sports Fund register eligible
+      beneficiaries, coordinate health coverage verification and enrolment support with SHA,
+      follow up outstanding cases, and report on programme reach and spending.
+    </p>
+    <div class="notice-card">
+      <strong>About this demonstration</strong>
+      <p>{{ DEMO_NOTICE }}</p>
+      <p class="muted">It has not been approved, commissioned or endorsed by the Sports Fund or the Social Health Authority, and it is not connected to either institution's systems.</p>
+    </div>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}">Enter the demo</a>
+      <a class="btn btn-ghost btn-lg" href="#capabilities">See proposed capabilities</a>
+    </div>
+  </section>
+
+  <section id="capabilities" class="section">
+    <h2>Proposed capabilities</h2>
+    <p class="muted">The eight functional areas proposed in the concept note, and how this demo treats each one.</p>
+    <div class="grid grid-4">
+      {% for name, text, mode in areas %}
+        <article class="card cap-card">
+          <span class="badge {{ 'badge-sim' if mode == 'Simulated' else 'badge-ok' }}">{{ mode }}</span>
+          <h3>{{ name }}</h3>
+          <p>{{ text }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Proposed phased approach</h2>
+    <p class="muted">From the concept note. This demo supports phase 1: building shared understanding.</p>
+    <ol class="phases">
+      {% for name, output in phases %}
+        <li class="{{ 'current' if loop.first }}">
+          <span class="phase-no">{{ '%02d' % loop.index }}</span>
+          <div><strong>{{ name }}</strong><span class="muted">Key output: {{ output }}</span></div>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+</main>
+<footer class="public-footer">
+  Independent demonstration prototype · Fictional data only · No official logos are used and no endorsement is implied.
+</footer>
+{% endblock %}

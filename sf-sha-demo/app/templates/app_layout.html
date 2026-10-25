@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{# app_layout.html — the signed-in layout: sidebar + top bar + page content.
+   Pages like home.html extend THIS file and fill the "content" block. #}
+{% block body_class %}app{% endblock %}
+{% block body %}
+<div class="shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">SF</span>
+      <div>
+        <div class="brand-title">Beneficiary Management</div>
+        <div class="brand-sub">Proposed concept · Demo</div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      {% for item in nav_items %}
+        {% if item.permission is none or can(item.permission) %}
+          {% if item.endpoint %}
+            <a class="nav-link {% if request.endpoint == item.endpoint %}active{% endif %}"
+               href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
+          {% else %}
+            {# Planned module: deliberately NOT a link, so there are no dead links. #}
+            <span class="nav-link planned" title="Planned for milestone {{ item.milestone }}">
+              {{ item.label }} <span class="badge badge-muted">M{{ item.milestone }}</span>
+            </span>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+    </nav>
+    <div class="sidebar-foot">All data shown is fictional demonstration data.</div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" type="button" data-toggle-sidebar aria-controls="sidebar" aria-label="Open menu">☰</button>
+      <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+      <div class="user-chip">
+        <div class="user-text">
+          <span class="user-name">{{ g.user.full_name }}</span>
+          <span class="user-role">{{ g.user.role_name }}</span>
+        </div>
+        <form method="post" action="{{ url_for('auth.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn-ghost btn-sm" type="submit">Sign out</button>
+        </form>
+      </div>
+    </header>
+    <main class="content">
+      {% include "partials/_flash.html" %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endblock %}
