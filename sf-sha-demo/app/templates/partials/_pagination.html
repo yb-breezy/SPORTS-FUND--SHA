@@ -1,0 +1,18 @@
+{# Page links that keep the current search and filters.
+   Needs: page, pages, total, per_page, active_filters, and `endpoint`. #}
+{% if pages > 1 %}
+  {% set first_row = (page - 1) * per_page + 1 %}
+  {% set last_row = [page * per_page, total] | min %}
+  <nav class="pagination" aria-label="Pages">
+    <span class="muted">Showing {{ first_row }}–{{ last_row }} of {{ total }}</span>
+    <div class="page-links">
+      {% if page > 1 %}
+        <a class="btn btn-ghost btn-sm" href="{{ url_for(endpoint, page=page - 1, **active_filters) }}">← Previous</a>
+      {% endif %}
+      <span class="page-now">Page {{ page }} of {{ pages }}</span>
+      {% if page < pages %}
+        <a class="btn btn-ghost btn-sm" href="{{ url_for(endpoint, page=page + 1, **active_filters) }}">Next →</a>
+      {% endif %}
+    </div>
+  </nav>
+{% endif %}

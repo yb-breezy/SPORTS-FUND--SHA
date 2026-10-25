@@ -1,0 +1,142 @@
+{% extends "app_layout.html" %}
+{% from "partials/_macros.html" import field_error %}
+{# One form used for both "new" and "edit". `values` holds what to show in each box:
+   the saved record when editing, or what the user typed if the server found errors. #}
+{% set is_new = mode == 'new' %}
+{% block title %}{{ 'Add beneficiary' if is_new else 'Edit ' ~ b.demo_ref }}{% endblock %}
+{% block page_title %}{{ 'Add beneficiary' if is_new else 'Edit ' ~ b.demo_ref }}{% endblock %}
+{% block content %}
+<p class="breadcrumb">
+  <a href="{{ url_for('beneficiaries.list_beneficiaries') }}">Beneficiaries</a> /
+  {% if is_new %}Add{% else %}<a href="{{ url_for('beneficiaries.profile', beneficiary_id=b.id) }}">{{ b.demo_ref }}</a> / Edit{% endif %}
+</p>
+
+<form class="card form-card" method="post" novalidate data-validate
+      action="{{ url_for('beneficiaries.new_beneficiary') if is_new else url_for('beneficiaries.edit_beneficiary', beneficiary_id=b.id) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="notice-inline">Enter <strong>fictional</strong> details only. Do not enter real people's information in this demo.</div>
+
+  <fieldset>
+    <legend>Basic information</legend>
+    <div class="form-grid">
+      <label class="field">
+        <span>First name <em>*</em></span>
+        <input name="first_name" value="{{ values.get('first_name', '') }}" required maxlength="60"
+               pattern="[A-Za-z][A-Za-z' \-]{1,59}" {% if errors.first_name %}aria-invalid="true"{% endif %}>
+        {{ field_error(errors, 'first_name') }}
+      </label>
+      <label class="field">
+        <span>Last name <em>*</em></span>
+        <input name="last_name" value="{{ values.get('last_name', '') }}" required maxlength="60"
+               pattern="[A-Za-z][A-Za-z' \-]{1,59}" {% if errors.last_name %}aria-invalid="true"{% endif %}>
+        {{ field_error(errors, 'last_name') }}
+      </label>
+      <label class="field">
+        <span>Gender <em>*</em></span>
+        <select name="gender" required {% if errors.gender %}aria-invalid="true"{% endif %}>
+          <option value="">Choose…</option>
+          {% for o in genders %}<option {{ 'selected' if values.get('gender') == o }}>{{ o }}</option>{% endfor %}
+        </select>
+        {{ field_error(errors, 'gender') }}
+      </label>
+      <label class="field">
+        <span>County <em>*</em></span>
+        <select name="county" required {% if errors.county %}aria-invalid="true"{% endif %}>
+          <option value="">Choose…</option>
+          {% for o in counties %}<option {{ 'selected' if values.get('county') == o }}>{{ o }}</option>{% endfor %}
+        </select>
+        {{ field_error(errors, 'county') }}
+      </label>
+      <label class="field">
+        <span>Mobile number <span class="muted">(optional)</span></span>
+        <input name="phone" value="{{ values.get('phone', '') }}" inputmode="tel" maxlength="16"
+               pattern="(\+?254|0)(7|1)[0-9 \-]{8,11}" placeholder="{{ b.phone_masked if (not is_new and b.phone_masked) else '07XX XXX XXX' }}"
+               {% if errors.phone %}aria-invalid="true"{% endif %}>
+        <span class="hint">Only the last 3 digits are kept{% if not is_new %}; leave blank to keep the current number{% endif %}.</span>
+        {{ field_error(errors, 'phone') }}
+      </label>
+      <label class="field">
+        <span>Email <span class="muted">(optional)</span></span>
+        <input type="email" name="email" value="{{ values.get('email') or '' }}" maxlength="120"
+               {% if errors.email %}aria-invalid="true"{% endif %}>
+        {{ field_error(errors, 'email') }}
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Programme and group</legend>
+    <div class="form-grid">
+      <label class="field">
+        <span>Beneficiary group <em>*</em></span>
+        <select name="category" required {% if errors.category %}aria-invalid="true"{% endif %}>
+          <option value="">Choose…</option>
+          {% for o in categories %}<option {{ 'selected' if values.get('category') == o }}>{{ o }}</option>{% endfor %}
+        </select>
+        {{ field_error(errors, 'category') }}
+      </label>
+      <label class="field">
+        <span>Sporting discipline <em>*</em></span>
+        <select name="discipline" required {% if errors.discipline %}aria-invalid="true"{% endif %}>
+          <option value="">Choose…</option>
+          {% for o in disciplines %}<option {{ 'selected' if values.get('discipline') == o }}>{{ o }}</option>{% endfor %}
+        </select>
+        {{ field_error(errors, 'discipline') }}
+      </label>
+      {% if is_new %}
+        <label class="field field-wide">
+          <span>Programme <em>*</em></span>
+          <select name="programme_id" required {% if errors.programme_id %}aria-invalid="true"{% endif %}>
+            <option value="">Choose an active programme…</option>
+            {% for p in programmes %}<option value="{{ p.id }}" {{ 'selected' if values.get('programme_id') == p.id|string }}>{{ p.name }}</option>{% endfor %}
+          </select>
+          {{ field_error(errors, 'programme_id') }}
+        </label>
+      {% else %}
+        <div class="field field-wide">
+          <span>Programme</span>
+          <p class="hint">Programme participation is shown on the profile and will be managed from the Programmes module (milestone 4).</p>
+        </div>
+      {% endif %}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Registration</legend>
+    <div class="form-grid">
+      <label class="field">
+        <span>Registration date <em>*</em></span>
+        <input type="date" name="registration_date" value="{{ values.get('registration_date', '') }}" required
+               min="2020-01-01" max="{{ today }}" {% if errors.registration_date %}aria-invalid="true"{% endif %}>
+        {{ field_error(errors, 'registration_date') }}
+      </label>
+      <label class="field">
+        <span>Record status <em>*</em></span>
+        <select name="status" required {% if errors.status %}aria-invalid="true"{% endif %}>
+          {% for o in statuses %}<option {{ 'selected' if values.get('status') == o }}>{{ o }}</option>{% endfor %}
+        </select>
+        {{ field_error(errors, 'status') }}
+      </label>
+      <div class="field field-wide">
+        <label class="checkbox">
+          <input type="checkbox" name="consent_recorded" {{ 'checked' if values.get('consent_recorded') == 'on' }}>
+          <span>Consent to registration has been recorded (demo)</span>
+        </label>
+        <span class="hint">Proposed rule: a record can only be marked <em>Registered</em> once consent is recorded.</span>
+        {{ field_error(errors, 'consent_recorded') }}
+      </div>
+      <label class="field field-wide">
+        <span>Notes <span class="muted">(optional, max 500 characters)</span></span>
+        <textarea name="notes" rows="3" maxlength="500">{{ values.get('notes') or '' }}</textarea>
+        <span class="hint">Do not record medical or clinical details (concept note §9, data minimisation).</span>
+        {{ field_error(errors, 'notes') }}
+      </label>
+    </div>
+  </fieldset>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">{{ 'Register beneficiary' if is_new else 'Save changes' }}</button>
+    <a class="btn btn-ghost" href="{{ url_for('beneficiaries.list_beneficiaries') if is_new else url_for('beneficiaries.profile', beneficiary_id=b.id) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

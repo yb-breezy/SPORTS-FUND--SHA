@@ -1,0 +1,28 @@
+{# Reusable pieces ("macros"). Import with:
+   {% from "partials/_macros.html" import status_badge, coverage_badge, field_error %} #}
+
+{% macro status_badge(status) -%}
+  {%- set cls = {
+      'Registered': 'badge-ok', 'Pending validation': 'badge-warn', 'Inactive': 'badge-muted',
+      'Active': 'badge-ok', 'Completed': 'badge-muted', 'Planned': 'badge-info', 'Withdrawn': 'badge-muted',
+      'Open': 'badge-warn', 'In progress': 'badge-info', 'Awaiting information': 'badge-warn', 'Resolved': 'badge-ok',
+      'Guidance recorded': 'badge-info', 'Follow-up pending': 'badge-warn', 'Completed in demo': 'badge-ok',
+      'High': 'badge-danger', 'Medium': 'badge-warn', 'Low': 'badge-muted'
+  } -%}
+  <span class="badge {{ cls.get(status, 'badge-muted') }}">{{ status }}</span>
+{%- endmacro %}
+
+{# Simulated coverage outcomes always carry the word "simulated" in their tooltip. #}
+{% macro coverage_badge(outcome) -%}
+  {%- if outcome -%}
+    {%- set cls = {'Confirmed in demo': 'badge-ok', 'Pending review': 'badge-info',
+                   'Further action required': 'badge-warn', 'Unable to confirm': 'badge-danger'} -%}
+    <span class="badge {{ cls.get(outcome, 'badge-muted') }}" title="Simulated result — not verified by SHA">{{ outcome }}</span>
+  {%- else -%}
+    <span class="badge badge-muted">Not yet checked</span>
+  {%- endif -%}
+{%- endmacro %}
+
+{% macro field_error(errors, name) -%}
+  {%- if errors.get(name) %}<span class="field-error" id="{{ name }}-error">{{ errors[name] }}</span>{% endif -%}
+{%- endmacro %}

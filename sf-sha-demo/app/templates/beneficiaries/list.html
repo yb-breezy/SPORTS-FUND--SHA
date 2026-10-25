@@ -1,0 +1,105 @@
+{% extends "app_layout.html" %}
+{% from "partials/_macros.html" import status_badge, coverage_badge %}
+{% block title %}Beneficiaries{% endblock %}
+{% block page_title %}Beneficiaries{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="muted">The proposed beneficiary registry (concept note §3.3, objective 1). All records are fictional.</p>
+  </div>
+  {% if can("edit_beneficiaries") %}
+    <a class="btn btn-primary" href="{{ url_for('beneficiaries.new_beneficiary') }}">+ Add beneficiary</a>
+  {% endif %}
+</div>
+
+{# GET form: the filters go into the web address, so a filtered list can be bookmarked or refreshed. #}
+<form class="card filter-bar" method="get" action="{{ url_for('beneficiaries.list_beneficiaries') }}" role="search">
+  <label class="field field-search">
+    <span>Search</span>
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="Name or DEMO-BEN number" maxlength="80">
+  </label>
+  <label class="field">
+    <span>Programme</span>
+    <select name="programme">
+      <option value="">All programmes</option>
+      {% for p in programmes %}<option value="{{ p.id }}" {{ 'selected' if filters.programme == p.id|string }}>{{ p.name }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="field">
+    <span>Group</span>
+    <select name="category">
+      <option value="">All groups</option>
+      {% for c in categories %}<option {{ 'selected' if filters.category == c }}>{{ c }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="field">
+    <span>County</span>
+    <select name="county">
+      <option value="">All counties</option>
+      {% for c in counties %}<option {{ 'selected' if filters.county == c }}>{{ c }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="field">
+    <span>Record status</span>
+    <select name="status">
+      <option value="">All statuses</option>
+      {% for s in statuses %}<option {{ 'selected' if filters.status == s }}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label class="field">
+    <span>Latest coverage (simulated)</span>
+    <select name="coverage">
+      <option value="">Any</option>
+      <option value="none" {{ 'selected' if filters.coverage == 'none' }}>Not yet checked</option>
+      {% for o in outcomes %}<option {{ 'selected' if filters.coverage == o }}>{{ o }}</option>{% endfor %}
+    </select>
+  </label>
+  <div class="filter-actions">
+    <button class="btn btn-primary" type="submit">Apply</button>
+    {% if active_filters %}<a class="btn btn-ghost" href="{{ url_for('beneficiaries.list_beneficiaries') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+<section class="card table-card section">
+  <div class="table-head">
+    <strong>{{ total }} beneficiar{{ 'y' if total == 1 else 'ies' }}</strong>
+    {% if active_filters %}<span class="muted"> match your filters</span>{% endif %}
+    <span class="badge badge-sim">Demo data</span>
+  </div>
+  {% if rows %}
+    <div class="table-wrap">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Reference</th><th>Name</th><th>Group</th><th>Programme</th>
+            <th>County</th><th>Registered</th><th>Status</th><th>Latest coverage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+            {% set names = (r.programme_names or '').split('|') %}
+            <tr>
+              <td class="mono nowrap"><a href="{{ url_for('beneficiaries.profile', beneficiary_id=r.id) }}">{{ r.demo_ref }}</a></td>
+              <td><a class="row-link" href="{{ url_for('beneficiaries.profile', beneficiary_id=r.id) }}">{{ r.first_name }} {{ r.last_name }}</a></td>
+              <td>{{ r.category }}</td>
+              <td>{{ names[0] }}{% if names|length > 1 %} <span class="muted">+{{ names|length - 1 }}</span>{% endif %}</td>
+              <td>{{ r.county }}</td>
+              <td class="nowrap">{{ r.registration_date }}</td>
+              <td>{{ status_badge(r.status) }}</td>
+              <td>{{ coverage_badge(r.latest_outcome) }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% with endpoint = 'beneficiaries.list_beneficiaries' %}{% include "partials/_pagination.html" %}{% endwith %}
+  {% else %}
+    <div class="empty-state">
+      <strong>No beneficiaries match these filters.</strong>
+      <p class="muted">Try a different search, or clear the filters.</p>
+      <a class="btn btn-ghost" href="{{ url_for('beneficiaries.list_beneficiaries') }}">Clear filters</a>
+    </div>
+  {% endif %}
+</section>
+<p class="footnote">Coverage outcomes are simulated for the demonstration and have not been verified by SHA.</p>
+{% endblock %}

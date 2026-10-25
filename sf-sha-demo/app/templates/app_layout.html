@@ -16,7 +16,9 @@
       {% for item in nav_items %}
         {% if item.permission is none or can(item.permission) %}
           {% if item.endpoint %}
-            <a class="nav-link {% if request.endpoint == item.endpoint %}active{% endif %}"
+            {# A module's link stays highlighted on all of its pages (list, profile, edit…). #}
+            {% set section = item.endpoint.split('.')[0] %}
+            <a class="nav-link {% if request.endpoint == item.endpoint or (section != 'main' and request.blueprint == section) %}active{% endif %}"
                href="{{ url_for(item.endpoint) }}">{{ item.label }}</a>
           {% else %}
             {# Planned module: deliberately NOT a link, so there are no dead links. #}

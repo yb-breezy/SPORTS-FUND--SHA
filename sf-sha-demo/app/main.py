@@ -1,7 +1,7 @@
 """General pages: landing, home, settings and demo reset (the "main" blueprint)."""
 from flask import Blueprint, current_app, flash, g, redirect, render_template, request, url_for
 
-from .constants import CATEGORIES
+from .constants import CATEGORIES, MILESTONES
 from .db import get_db, log_activity, rebuild_database
 from .permissions import PERMISSIONS, ROLES
 from .security import login_required, permission_required
@@ -70,6 +70,7 @@ def home():
         category_breakdown=category_breakdown,
         largest=largest,
         my_permissions=my_permissions,
+        milestones=MILESTONES,
     )
 
 

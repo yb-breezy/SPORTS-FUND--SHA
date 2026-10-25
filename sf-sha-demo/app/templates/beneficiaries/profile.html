@@ -1,0 +1,146 @@
+{% extends "app_layout.html" %}
+{% from "partials/_macros.html" import status_badge, coverage_badge %}
+{% block title %}{{ b.demo_ref }}{% endblock %}
+{% block page_title %}Beneficiary profile{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="{{ url_for('beneficiaries.list_beneficiaries') }}">Beneficiaries</a> / {{ b.demo_ref }}</p>
+
+<section class="card profile-head">
+  <div>
+    <p class="eyebrow mono">{{ b.demo_ref }} · Fictional record</p>
+    <h2>{{ b.first_name }} {{ b.last_name }}</h2>
+    <div class="chips">
+      {{ status_badge(b.status) }}
+      {{ coverage_badge(latest.outcome if latest else None) }}
+      <span class="badge badge-muted">{{ b.category }}</span>
+      <span class="badge badge-muted">{{ b.discipline }}</span>
+    </div>
+  </div>
+  {% if can("edit_beneficiaries") %}
+    <a class="btn btn-ghost" href="{{ url_for('beneficiaries.edit_beneficiary', beneficiary_id=b.id) }}">Edit record</a>
+  {% endif %}
+</section>
+
+<div class="summary-strip">
+  <div><span class="stat-label">Programmes</span><strong>{{ programmes|length }}</strong></div>
+  <div><span class="stat-label">Simulated coverage checks</span><strong>{{ checks|length }}</strong></div>
+  <div><span class="stat-label">Open follow-up cases</span><strong>{{ open_cases|length }}</strong></div>
+  <div><span class="stat-label">Referral / guidance records</span><strong>{{ referrals|length }}</strong></div>
+</div>
+
+<div class="grid grid-2 section">
+  <section class="card">
+    <h3>Basic information</h3>
+    <dl class="details">
+      <dt>Full name</dt><dd>{{ b.first_name }} {{ b.last_name }}</dd>
+      <dt>Gender</dt><dd>{{ b.gender }}</dd>
+      <dt>County</dt><dd>{{ b.county }}</dd>
+      <dt>Mobile</dt><dd>{{ b.phone_masked or 'Not recorded' }}</dd>
+      <dt>Email</dt><dd>{{ b.email or 'Not recorded' }}</dd>
+    </dl>
+    <p class="hint">Phone numbers are shown masked. No medical or ID details are stored (data minimisation, §9).</p>
+  </section>
+
+  <section class="card">
+    <h3>Registration details</h3>
+    <dl class="details">
+      <dt>Registered on</dt><dd>{{ b.registration_date }}</dd>
+      <dt>Record status</dt><dd>{{ status_badge(b.status) }}</dd>
+      <dt>Consent</dt><dd>{% if b.consent_recorded %}Recorded {{ b.consent_date or '' }}{% else %}<span class="text-warn">Not recorded</span>{% endif %}</dd>
+      <dt>Validated by</dt><dd>{{ b.validated_by or 'Not yet validated' }}</dd>
+      <dt>Created by</dt><dd>{{ created_by.full_name if created_by else '—' }}</dd>
+      <dt>Last updated</dt><dd>{{ b.updated_at }}</dd>
+    </dl>
+    {% if b.notes %}<p class="note-box">{{ b.notes }}</p>{% endif %}
+  </section>
+</div>
+
+<section class="card section">
+  <h3>Programme participation</h3>
+  {% if programmes %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Programme</th><th>Programme status</th><th>Joined</th><th>Participation</th></tr></thead>
+      <tbody>
+        {% for p in programmes %}
+          <tr><td>{{ p.name }} <span class="muted mono">{{ p.code }}</span></td><td>{{ status_badge(p.programme_status) }}</td><td>{{ p.joined_on }}</td><td>{{ status_badge(p.status) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% else %}
+    <p class="muted">Not linked to any programme.</p>
+  {% endif %}
+</section>
+
+<section class="card section">
+  <div class="section-head">
+    <h3>Coverage-coordination history</h3>
+    <span class="badge badge-sim">Simulated · not verified by SHA</span>
+  </div>
+  {% if checks %}
+    <div class="table-wrap"><table class="table">
+      <thead><tr><th>Date and time</th><th>Sample reference</th><th>Simulated outcome</th><th>Next step</th><th>By</th></tr></thead>
+      <tbody>
+        {% for c in checks %}
+          <tr>
+            <td class="nowrap">{{ c.checked_at }}</td><td class="mono">{{ c.sample_ref }}</td>
+            <td>{{ coverage_badge(c.outcome) }}</td><td>{{ c.next_step }}</td><td>{{ c.checked_by_name or '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+  {% else %}
+    <p class="muted">No simulated coverage check has been run for this beneficiary yet.</p>
+  {% endif %}
+  <p class="planned-note">Running a new simulated check from here arrives in milestone 3. A real result would need authorised verification through a process agreed with SHA.</p>
+</section>
+
+<div class="grid grid-2 section">
+  <section class="card">
+    <h3>Follow-up cases</h3>
+    {% if cases %}
+      <ul class="item-list">
+        {% for c in cases %}
+          <li>
+            <div><span class="mono">{{ c.case_ref }}</span> · {{ c.title }}</div>
+            <div class="item-meta">{{ status_badge(c.status) }} {{ status_badge(c.priority) }} <span class="muted">{{ c.category }} · due {{ c.due_date }} · {{ c.assignee or 'Unassigned' }}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No follow-up cases.</p>
+    {% endif %}
+    <p class="planned-note">Opening and updating cases arrives in milestone 3.</p>
+  </section>
+
+  <section class="card">
+    <div class="section-head"><h3>Referral and support history</h3><span class="badge badge-sim">Simulated</span></div>
+    {% if referrals %}
+      <ul class="item-list">
+        {% for r in referrals %}
+          <li>
+            <div><span class="mono">{{ r.referral_ref }}</span> · {{ r.category }}</div>
+            <div class="item-meta">{{ status_badge(r.status) }} <span class="muted">{{ r.facility_name }} · {{ r.created_at[:10] }}</span></div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No referral or guidance records.</p>
+    {% endif %}
+    <p class="hint">Nothing is sent to any facility or institution from this demo.</p>
+  </section>
+</div>
+
+<section class="card section">
+  <h3>Activity history</h3>
+  {% if activity %}
+    <ol class="timeline">
+      {% for a in activity %}
+        <li><span class="nowrap muted">{{ a.created_at }}</span><span><strong>{{ a.action }}</strong> — {{ a.summary }}{% if a.actor %} <span class="muted">({{ a.actor }})</span>{% endif %}</span></li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p class="muted">No recorded activity yet.</p>
+  {% endif %}
+  <p class="hint">Prototype activity log — not a production security audit trail.</p>
+</section>
+{% endblock %}

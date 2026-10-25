@@ -7,6 +7,18 @@ The allowed values must match the CHECK (...) lists in schema.sql.
 
 APP_NAME = "Sports Fund–SHA Beneficiary Management Demo"
 
+# The last milestone that has been built AND tested. Shown on the Home page.
+COMPLETED_MILESTONE = 2
+
+MILESTONES = [
+    (1, "Foundation", "sign-in, roles, layout, sample data, reset"),
+    (2, "Beneficiary register", "list, search, filters, register, edit, profiles"),
+    (3, "Coordination", "simulated coverage checks, follow-up cases, referrals"),
+    (4, "Monitoring", "dashboard, programmes, financial accountability"),
+    (5, "Oversight", "reports & CSV export, users & roles, activity log"),
+    (6, "Ready to present", "full testing, polish, documentation, walkthrough"),
+]
+
 DEMO_NOTICE = (
     "This is a demonstration prototype exploring a proposed approach to beneficiary "
     "management and health coverage coordination. It is not an official Sports Fund "

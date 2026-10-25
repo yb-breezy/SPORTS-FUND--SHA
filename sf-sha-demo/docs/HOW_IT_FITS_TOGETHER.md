@@ -18,17 +18,20 @@ sf-sha-demo/
 │   ├── security.py         ← who is signed in, permission checks, CSRF protection
 │   ├── auth.py             ← /login and /logout pages
 │   ├── main.py             ← /, /home, /settings, /settings/reset
+│   ├── beneficiaries.py    ← M2: /beneficiaries list, /new, /<id> profile, /<id>/edit
+│   ├── validation.py       ← M2: server-side checks for the beneficiary form
 │   ├── templates/          ← HTML pages (Jinja templates)
 │   │   ├── base.html           outer shell + demo banner (every page)
 │   │   ├── app_layout.html     sidebar + top bar (signed-in pages)
 │   │   ├── landing.html, auth/login.html, main/home.html, main/settings.html
+│   │   ├── beneficiaries/      list.html, form.html (add + edit), profile.html
 │   │   ├── errors/error.html   friendly 400/403/404/500 page
-│   │   └── partials/_flash.html success/error messages
+│   │   └── partials/           _flash.html messages, _macros.html badges, _pagination.html
 │   └── static/
 │       ├── css/app.css     ← the whole design system
 │       └── js/app.js       ← small browser helpers (fill demo login, confirm reset, validation, mobile menu)
 ├── instance/               ← created automatically: demo.db (the database) + secret_key
-├── tests/test_milestone1.py
+├── tests/                ← test_milestone1.py, test_milestone2.py
 └── docs/                   ← this documentation
 ```
 
@@ -59,3 +62,15 @@ sf-sha-demo/
 | The sidebar menu | `app/__init__.py` → `NAV_ITEMS` |
 | How many sample beneficiaries there are | `app/seed.py` → `range(1, 161)` then reset the demo |
 | A table's columns | `app/schema.sql`, then reset the demo |
+
+## Following a form: "Register a beneficiary" (milestone 2)
+
+1. **`list.html`** shows the **+ Add beneficiary** button only if `can("edit_beneficiaries")`.
+2. It links to `/beneficiaries/new`, handled by `new_beneficiary()` in **`beneficiaries.py`**. `@permission_required("edit_beneficiaries")` refuses other roles with a 403.
+3. **GET** shows the empty **`form.html`**. When you click *Register*, **`app.js`** first checks the boxes in the browser (required fields, name pattern, email format, date not in the future).
+4. The browser **POSTs** the form. The server runs **`validate_beneficiary()`** in **`validation.py`** — the same rules again, plus ones a browser can't check (is the programme Active? is this a likely duplicate? is consent recorded before "Registered"?).
+5. **If anything is wrong** the form comes back with the typed values kept and a red message under each problem field (status 400).
+6. **If everything is right**, it works out the next `DEMO-BEN-` number, `INSERT`s into `beneficiaries` and `participations`, writes a line to `activity_log`, `commit()`s, and redirects to the new profile with a green message.
+7. Because the Home page counts rows live, its Beneficiaries number goes up by one automatically.
+
+The phone number you type is never stored in full: `mask_phone()` keeps only the last 3 digits.

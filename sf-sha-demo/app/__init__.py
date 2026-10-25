@@ -27,7 +27,7 @@ from .security import can, check_csrf, csrf_token, load_logged_in_user
 NAV_ITEMS = [
     {"label": "Home",                  "endpoint": "main.home",     "permission": None,                 "milestone": 1},
     {"label": "Dashboard",             "endpoint": None,            "permission": "view_dashboard",     "milestone": 4},
-    {"label": "Beneficiaries",         "endpoint": None,            "permission": "view_beneficiaries", "milestone": 2},
+    {"label": "Beneficiaries",         "endpoint": "beneficiaries.list_beneficiaries", "permission": "view_beneficiaries", "milestone": 2},
     {"label": "Coverage coordination", "endpoint": None,            "permission": "view_coverage",      "milestone": 3},
     {"label": "Follow-up cases",       "endpoint": None,            "permission": "view_cases",         "milestone": 3},
     {"label": "Referrals",             "endpoint": None,            "permission": "view_referrals",     "milestone": 3},
@@ -90,12 +90,14 @@ def create_app(test_config=None):
             "can": can,
             "nav_items": NAV_ITEMS,
             "role_names": {k: v["name"] for k, v in ROLES.items()},
+            "COMPLETED_MILESTONE": constants.COMPLETED_MILESTONE,
         }
 
     # ----- routes, grouped in blueprints -----
-    from . import auth, main
+    from . import auth, beneficiaries, main
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
+    app.register_blueprint(beneficiaries.bp)
 
     # ----- friendly error pages (no technical details shown to the viewer) -----
     @app.errorhandler(400)

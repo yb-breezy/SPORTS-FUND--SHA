@@ -21,19 +21,25 @@
 
   // 3. Forms with data-validate show friendly messages next to empty or invalid
   //    fields before sending. The server checks again — this is only for comfort.
+  //    It uses the rules written in the HTML: required, pattern, type="email", min/max.
   document.querySelectorAll("form[data-validate]").forEach(function (form) {
     form.addEventListener("submit", function (event) {
       var firstBad = null;
-      form.querySelectorAll("input[required]").forEach(function (input) {
-        var old = input.parentElement.querySelector(".field-error");
+      form.querySelectorAll("input:not([type=hidden]), select, textarea").forEach(function (input) {
+        var holder = input.closest(".field") || input.parentElement;
+        var old = holder.querySelector(".field-error");
         if (old) old.remove();
         input.removeAttribute("aria-invalid");
         if (!input.checkValidity()) {
           var msg = document.createElement("span");
           msg.className = "field-error";
-          msg.textContent = input.value ? "Please check this value." : "This field is required.";
+          var v = input.validity;
+          msg.textContent = v.valueMissing ? "This field is required."
+            : v.rangeOverflow ? "This date cannot be in the future."
+            : v.rangeUnderflow ? "This date is too early."
+            : "Please check this value.";
           input.setAttribute("aria-invalid", "true");
-          input.parentElement.appendChild(msg);
+          holder.appendChild(msg);
           firstBad = firstBad || input;
         }
       });

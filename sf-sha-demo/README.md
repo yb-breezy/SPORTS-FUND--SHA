@@ -53,6 +53,12 @@ All use the password **`Demo@2026`**. The login page has a **Use** button for ea
 | Coverage coordination officer | coverage.officer@sfsha-demo.example |
 | Management (view-only) | management@sfsha-demo.example |
 
+## Get the latest version from GitHub
+With the website stopped (Ctrl + C), in the `sf-sha-demo` folder:
+```
+git pull
+```
+
 ## Reset the sample data
 - **In the app:** sign in as Administrator → **Settings** → type `RESET` → **Reset demo data**.
 - **From the terminal** (with the server stopped): `flask --app run reset-demo`
@@ -61,20 +67,20 @@ All use the password **`Demo@2026`**. The login page has a **Use** button for ea
 ```
 python -m unittest discover -s tests -t . -v
 ```
-Expected last lines: `Ran 26 tests …` then `OK`.
+Expected last lines: `Ran 49 tests …` then `OK`.
 
 ## Documentation
 - `docs/HOW_IT_FITS_TOGETHER.md`: a guided tour of the code
 - `docs/ARCHITECTURE.md`: technology choices, architecture, ERD, tables
 - `docs/REQUIREMENTS_MATRIX.md`: every concept-note point mapped to a feature
 - `docs/OPEN_QUESTIONS.md`: questions for the Sports Fund and SHA
-- `docs/MILESTONE_1_RESULTS.md`: what was built and tested in milestone 1
+- `docs/MILESTONE_1_RESULTS.md`, `docs/MILESTONE_2_RESULTS.md`: what was built and tested in each milestone
 
 ## Build status
 | Milestone | Scope | Status |
 |---|---|---|
 | M1 | Foundation: sign-in, 5 roles, layout, sample data, reset | ✅ Done and tested |
-| M2 | Beneficiary register and profiles | Planned |
+| M2 | Beneficiary register and profiles | ✅ Done and tested |
 | M3 | Simulated coverage checks, follow-up cases, referrals | Planned |
 | M4 | Dashboard, programmes, financial accountability | Planned |
 | M5 | Reports & CSV export, users & roles, activity log | Planned |
